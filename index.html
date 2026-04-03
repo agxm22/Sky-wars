@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Kitty Sky Wars 🎀</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ph:#FF4D94;--pm:#FFB3D1;--pl:#FFD6E7;
+  --lav:#E8D5F5;--sky:#C9EEFF;--gold:#FFD700;
+  --white:#fff;
+}
+html,body{
+  width:100%;height:100%;overflow:hidden;
+  touch-action:none;background:#1a0830;
+  font-family:'Fredoka One',cursive;
+}
+#wrap{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at 50% 30%,#3d1060 0%,#1a0830 70%);
+  position:relative;overflow:hidden;
+}
+/* floating bg stars */
+.bstar{position:absolute;border-radius:50%;pointer-events:none;animation:twinkle ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.9;transform:scale(1.3)}}
+
+canvas{
+  display:block;
+  border-radius:18px;
+  box-shadow:
+    0 0 0 3px var(--ph),
+    0 0 0 7px rgba(255,77,148,.3),
+    0 0 40px rgba(255,77,148,.4),
+    0 0 80px rgba(180,50,200,.25);
+  cursor:crosshair;
+  max-width:100%;
+  max-height:100%;
+  touch-action:none;
+}
+
+/* HUD above canvas */
+#hud{
+  display:none;
+  width:100%;
+  justify-content:space-between;align-items:center;
+  padding:0 4px 6px;
+  pointer-events:none;
+}
+.pill{
+  background:rgba(255,255,255,.12);
+  border:2px solid rgba(255,77,148,.6);
+  backdrop-filter:blur(4px);
+  border-radius:30px;padding:4px 14px;
+  font-size:clamp(.7rem,2.5vw,1rem);color:#FFD6E7;
+  white-space:nowrap;
+}
+.pill span{color:var(--ph);}
+
+/* life hearts */
+
+
+
+/* overlays */
+.ov{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:rgba(20,4,48,.88);
+  backdrop-filter:blur(10px);
+  border-radius:18px;z-index:30;
+  gap:clamp(8px,2.5vh,16px);
+  padding:clamp(14px,4vw,28px) clamp(12px,4vw,24px);
+}
+.ov h1{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.6rem,6vw,3rem);
+  color:var(--ph);
+  text-shadow:0 0 20px rgba(255,77,148,.8),3px 3px 0 #fff1;
+  text-align:center;line-height:1.1;
+}
+.sub{
+  font-family:'Nunito',sans-serif;
+  font-size:clamp(.72rem,2.5vw,.96rem);
+  color:#e8b0cc;text-align:center;font-weight:700;
+  max-width:320px;
+}
+.tip{
+  font-family:'Nunito',sans-serif;
+  font-size:clamp(.6rem,2vw,.78rem);
+  color:#b088a0;text-align:center;opacity:.8;
+}
+.btn{
+  background:linear-gradient(145deg,var(--ph),#b0106a);
+  color:#fff;border:none;border-radius:50px;
+  padding:clamp(10px,2.5vw,14px) clamp(28px,7vw,48px);
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(.9rem,3vw,1.3rem);
+  cursor:pointer;pointer-events:all;
+  box-shadow:0 6px 0 #7a0a4a,0 8px 24px rgba(255,77,148,.5),0 0 30px rgba(255,77,148,.3);
+  transition:transform .1s,box-shadow .1s;
+  letter-spacing:1px;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #7a0a4a;}
+
+.cards{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.card{
+  background:rgba(255,255,255,.07);
+  border:2px solid rgba(255,77,148,.4);
+  border-radius:14px;padding:clamp(8px,2vw,12px) clamp(14px,4vw,22px);
+  text-align:center;backdrop-filter:blur(4px);
+}
+.card .lbl{font-family:'Nunito',sans-serif;font-size:clamp(.6rem,2vw,.74rem);color:#e8b0cc;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.card .val{font-size:clamp(1.4rem,5vw,2rem);color:var(--ph);line-height:1;
+  text-shadow:0 0 10px rgba(255,77,148,.6);}
+
+.love-msg{
+  font-family:'Dancing Script',cursive;
+  font-size:clamp(.9rem,3.5vw,1.4rem);
+  color:#ff9cc8;text-align:center;line-height:1.45;
+  background:rgba(255,77,148,.12);
+  border-radius:14px;padding:clamp(8px,2vw,12px) clamp(12px,3vw,18px);
+  border:1.5px solid rgba(255,77,148,.4);
+  max-width:min(295px,88%);
+  animation:plse 2.2s ease-in-out infinite;
+}
+@keyframes plse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+
+.bow{font-size:clamp(1.5rem,5vw,2.2rem);}
+.bop{animation:bop 1s ease-in-out infinite;display:inline-block;}
+@keyframes bop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* boss health bar */
+#bossBarWrap{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:min(220px,70%);
+  background:rgba(0,0,0,.5);
+  border:2px solid var(--ph);
+  border-radius:0 0 12px 12px;
+  padding:4px 8px 6px;
+  text-align:center;
+  display:none;z-index:10;
+}
+#bossLabel{font-size:.65rem;color:#ff9cc8;letter-spacing:2px;text-transform:uppercase;}
+#bossBar{
+  height:8px;background:rgba(255,255,255,.1);
+  border-radius:4px;margin-top:3px;overflow:hidden;
+}
+#bossBarFill{height:100%;background:linear-gradient(90deg,#FF4D94,#FFD700);border-radius:4px;transition:width .2s;}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <!-- bg decorative stars injected by JS -->
+
+  <div id="hud">
+    <div class="pill">🎀 <span id="scoreEl">0</span></div>
+    <div class="pill">🌊 Wave <span id="levelEl">1</span></div>
+  </div>
+  <canvas id="c"></canvas>
+  <div id="bossBarWrap">
+    <div id="bossLabel">👑 Boss Kitty 👑</div>
+    <div id="bossBar"><div id="bossBarFill" style="width:100%"></div></div>
+  </div>
+
+  <!-- START -->
+  <div class="ov" id="startOv">
+    <div class="bow">🎀</div>
+    <span class="bop" style="font-size:clamp(2.5rem,8vw,4rem)">🌸</span>
+    <h1>Kitty Sky Wars!</h1>
+    <p class="sub">Pilot your Kitty ship through waves of enemy clouds — shoot them down with heart lasers! 💗</p>
+    <button class="btn" id="startBtn">Let's Fight! 🎀</button>
+    <p class="tip">Move: Drag / Arrow keys &nbsp;·&nbsp; Shoot: Auto 💕</p>
+  </div>
+
+  <!-- GAME OVER -->
+  <div class="ov" id="gameOverOv" style="display:none">
+    <div class="bow">🎀</div>
+    <h1>Oopsie~! 💕</h1>
+    <div class="love-msg">✨ You would always win for me,<br>no matter what 🎀💗</div>
+    <div class="cards">
+      <div class="card"><div class="lbl">Score</div><div class="val" id="finalScore">0</div></div>
+      <div class="card"><div class="lbl">Best</div><div class="val" id="finalBest">0</div></div>
+      <div class="card"><div class="lbl">Wave</div><div class="val" id="finalWave">1</div></div>
+    </div>
+    <button class="btn" id="restartBtn">Try Again! 🎀</button>
+  </div>
+
+  <!-- LEVEL UP -->
+  <div class="ov" id="levelOv" style="display:none">
+    <div class="bow">🎀</div>
+    <h1 id="levelTitle">Wave 2! ✨</h1>
+    <p class="sub" id="levelSub">Enemies are getting fiercer~</p>
+    <button class="btn" id="nextBtn">Ready! 💪🎀</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  KITTY SKY WARS  —  Vertical shoot-em-up, Hello Kitty theme
+//  Mobile-first, fully responsive
+// ══════════════════════════════════════════════════════════
+const canvas     = document.getElementById('c');
+const ctx        = canvas.getContext('2d');
+const hud        = document.getElementById('hud');
+const scoreEl    = document.getElementById('scoreEl');
+const levelEl    = document.getElementById('levelEl');
+// livesEl removed
+const startOv    = document.getElementById('startOv');
+const gameOverOv = document.getElementById('gameOverOv');
+const levelOv    = document.getElementById('levelOv');
+const levelTitle = document.getElementById('levelTitle');
+const levelSub   = document.getElementById('levelSub');
+const finalScore = document.getElementById('finalScore');
+const finalBest  = document.getElementById('finalBest');
+const finalWave  = document.getElementById('finalWave');
+const bossBarWrap= document.getElementById('bossBarWrap');
+const bossBarFill= document.getElementById('bossBarFill');
+
+// ── Resize: tall vertical canvas (portrait game) ──────────
+function resize(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const hudH = hud.style.display==='flex' ? 44 : 0;
+  // Prefer a portrait 9:16 style game canvas — classic shmup
+  const ratio = 9/16;
+  let w = Math.min(vw, (vh - hudH - 8) * ratio);
+  let h = w / ratio;
+  if(h > vh - hudH - 8){ h = vh - hudH - 8; w = h * ratio; }
+  w = Math.min(w, vw - 8);
+  canvas.width  = Math.max(Math.floor(w), 1);
+  canvas.height = Math.max(Math.floor(h), 1);
+  hud.style.width = canvas.width + 'px';
+}
+resize();
+window.addEventListener('resize', ()=>{ resize(); });
+
+const W = ()=> canvas.width;
+const H = ()=> canvas.height;
+const S = ()=> canvas.width / 360; // scale relative to 360px wide base
+
+// ── Inject bg stars ────────────────────────────────────────
+(function injectBgStars(){
+  const wrap = document.getElementById('wrap');
+  for(let i=0;i<60;i++){
+    const el = document.createElement('div');
+    el.className='bstar';
+    const sz = 1+Math.random()*3;
+    el.style.cssText=`
+      width:${sz}px;height:${sz}px;
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      background:hsl(${300+Math.random()*60},80%,${70+Math.random()*30}%);
+      animation-duration:${2+Math.random()*4}s;
+      animation-delay:${Math.random()*4}s;
+    `;
+    wrap.appendChild(el);
+  }
+})();
+
+// ══════════════════════════════════════════════════════════
+//  GAME STATE
+// ══════════════════════════════════════════════════════════
+let state = 'idle'; // idle|playing|levelup|dead
+let score=0, best=0, wave=1, lives=3, frame=0;
+let player, bullets, enemies, enemyBullets, particles, powerups;
+let shootTimer=0, enemySpawnTimer=0;
+let bossActive=false, bossRef=null;
+let bgStars=[], bgClouds=[];
+
+// ── Init ───────────────────────────────────────────────────
+function init(){
+  resize();
+  score=0; wave=1; lives=5; frame=0;
+  bossActive=false; bossRef=null;
+  player={
+    x:W()/2, y:H()*0.82,
+    w:28*S(), h:34*S(),
+    speed:4.2*S(),
+    shield:0,
+    invincible:0,
+    trail:[]
+  };
+  bullets=[]; enemies=[]; enemyBullets=[];
+  particles=[]; powerups=[];
+  shootTimer=0; enemySpawnTimer=0;
+  bgStars=Array.from({length:80},mkBgStar);
+  bgClouds=Array.from({length:6},()=>mkBgCloud(Math.random()*H()));
+  updateLivesHUD();
+  scoreEl.textContent='0';
+  levelEl.textContent='1';
+}
+
+function mkBgStar(){
+  return{
+    x:Math.random()*W(), y:Math.random()*H(),
+    sz:(0.5+Math.random()*2)*S(),
+    sp:(0.3+Math.random()*1.2)*S(),
+    col:`hsl(${280+Math.random()*80},70%,${65+Math.random()*35}%)`
+  };
+}
+function mkBgCloud(y){
+  return{
+    x:Math.random()*W(), y:y??-80,
+    sz:(20+Math.random()*35)*S(),
+    sp:(0.2+Math.random()*0.5)*S(),
+    op:0.06+Math.random()*0.1,
+    col:Math.random()>.5?'#FFB3D1':'#E8D5F5'
+  };
+}
+
+// ── Enemy configs per wave ─────────────────────────────────
+function waveConfig(){
+  return{
+    count:       4 + wave*2,                        // fewer enemies
+    speed:       (0.45 + wave*0.08)*S(),            // much slower fall
+    fireRate:    Math.max(110, 220-wave*12),         // fire much less often
+    bulletSpeed: (1.3 + wave*0.08)*S(),             // bullets slower
+    hp:          1 + Math.floor(wave/4),            // more HP steps
+    pattern:     wave<=2?'line':wave<=4?'v':'zigzag',
+    hasBoss:     wave%5===0
+  };
+}
+
+function mkEnemy(cfg, idx, total){
+  const col = ['#FF85B3','#C77DFF','#A8DEFF','#FFD700','#FF6B6B'][Math.floor(Math.random()*5)];
+  const types=['cloud','star','heart','diamond'];
+  const type=types[Math.floor(Math.random()*types.length)];
+  let x,y;
+  if(cfg.pattern==='line'){
+    x = (W()/(total+1))*(idx+1); y=-40*S();
+  } else if(cfg.pattern==='v'){
+    const half=Math.floor(total/2);
+    x = idx<half ? W()*0.2+idx*(W()*0.3/half) : W()*0.5+(idx-half)*(W()*0.3/half);
+    y = (-40-idx*22)*S();
+  } else if(cfg.pattern==='zigzag'){
+    x = (W()/(total+1))*(idx+1);
+    y = (-40 - (idx%2)*60)*S();
+  } else {
+    x = 30*S()+Math.random()*(W()-60*S()); y=-40*S()-Math.random()*80*S();
+  }
+  return{
+    x,y, type,col,
+    w:22*S(),h:22*S(),
+    hp:cfg.hp, maxHp:cfg.hp,
+    speed:cfg.speed*(0.85+Math.random()*0.3),
+    fireRate:cfg.fireRate,
+    fireTimer:Math.floor(Math.random()*cfg.fireRate),
+    bulletSpeed:cfg.bulletSpeed,
+    drift: (Math.random()-0.5)*1.2*S(),
+    phase: Math.random()*Math.PI*2,
+
+    dead:false
+  };
+}
+
+function mkBoss(){
+  return{
+    x:W()/2, y:-80*S(),
+    w:72*S(),h:64*S(),
+    hp:40+wave*10, maxHp:40+wave*10,
+    speed:0.8*S(),
+    phase:0, dir:1,
+    fireTimer:0, fireRate:50,      // boss fires slower
+    bulletSpeed:1.6*S(),           // boss bullets slower
+    isBoss:true, dead:false,
+    col:'#FF4D94', col2:'#FFD700',
+    pattern:'sweep',
+    col3:'#C77DFF'
+  };
+}
+
+// ── Spawn wave ─────────────────────────────────────────────
+let enemiesThisWave=0, enemiesSpawned=0, spawnDelay=0;
+function startWave(){
+  const cfg=waveConfig();
+  enemiesThisWave=cfg.count;
+  enemiesSpawned=0;
+  spawnDelay=0;
+  bossActive=false; bossRef=null;
+  bossBarWrap.style.display='none';
+  // Stagger spawn
+  let i=0;
+  const spawnNext=()=>{
+    if(i>=cfg.count||(state!=='playing'&&state!=='idle'))return;
+    enemies.push(mkEnemy(cfg,i,cfg.count));
+    i++; enemiesSpawned++;
+    if(i<cfg.count) setTimeout(spawnNext, 220+Math.random()*180);
+  };
+  setTimeout(spawnNext,600);
+  if(cfg.hasBoss){
+    setTimeout(()=>{
+      if(state!=='playing')return;
+      const b=mkBoss();
+      enemies.push(b);
+      bossRef=b; bossActive=true;
+      bossBarWrap.style.display='block';
+    }, 3200+cfg.count*250);
+  }
+}
+
+// ── Particle factories ─────────────────────────────────────
+function explosion(x,y,col,big){
+  const n=big?22:12;
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2;
+    const sp=(big?2:1.2)*(1+Math.random()*3)*S();
+    particles.push({
+      x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,
+      life:1, decay:big?.022:.03,
+      col:col||'#FF85B3',
+      sz:(big?4:2.5+Math.random()*3)*S(),
+      isEmoji:Math.random()>.6&&big,
+      em:['🌸','💫','⭐','🎀','💕'][Math.floor(Math.random()*5)]
+    });
+  }
+}
+function spawnHitSpark(x,y){
+  for(let i=0;i<6;i++){
+    const a=Math.random()*Math.PI*2;
+    particles.push({x,y,vx:Math.cos(a)*2.5*S(),vy:Math.sin(a)*2.5*S(),life:1,decay:.07,col:'#FFD700',sz:2*S(),isEmoji:false});
+  }
+}
+
+// ── Powerup ────────────────────────────────────────────────
+function spawnPowerup(x,y){
+  if(Math.random()>0.55)return;  // 55% drop chance
+  const types=['shield','multi'];
+  powerups.push({x,y,type:types[Math.floor(Math.random()*types.length)],vy:1.2*S(),life:1});
+}
+
+// ── Update lives HUD ──────────────────────────────────────
+function updateLivesHUD(){ /* no-op: lives removed, one-hit game */ }
+
+// ══════════════════════════════════════════════════════════
+//  DRAWING
+// ══════════════════════════════════════════════════════════
+function drawBG(){
+  // Deep space gradient
+  const g=ctx.createLinearGradient(0,0,0,H());
+  g.addColorStop(0,'#0d0420');
+  g.addColorStop(.5,'#1a0830');
+  g.addColorStop(1,'#2a0845');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W(),H());
+
+  // Stars scrolling
+  bgStars.forEach(s=>{
+    s.y+=s.sp;
+    if(s.y>H()){s.y=-4; s.x=Math.random()*W();}
+    ctx.save();
+    ctx.fillStyle=s.col;
+    ctx.globalAlpha=0.7+Math.sin(frame*.04+s.x)*0.3;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.sz,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+
+  // Nebula clouds
+  bgClouds.forEach(c=>{
+    c.y+=c.sp;
+    if(c.y>H()+80){c.y=-80; c.x=Math.random()*W(); c.sz=(20+Math.random()*35)*S();}
+    ctx.save();
+    ctx.globalAlpha=c.op;
+    ctx.fillStyle=c.col;
+    ctx.beginPath();
+    ctx.arc(c.x,c.y,c.sz,0,Math.PI*2);
+    ctx.arc(c.x+c.sz*.6,c.y-c.sz*.3,c.sz*.7,0,Math.PI*2);
+    ctx.arc(c.x-c.sz*.6,c.y+c.sz*.2,c.sz*.55,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// ── Player ship ────────────────────────────────────────────
+function drawPlayer(){
+  const {x,y,w,h,invincible,shield}=player;
+  if(invincible>0&&Math.floor(frame/4)%2===0) return; // flash
+
+  ctx.save();
+  ctx.translate(x,y);
+  const s=S();
+
+  // Engine glow trail
+  ctx.save();
+  const tg=ctx.createRadialGradient(0,h*.6,0,0,h*.6,h*.5);
+  tg.addColorStop(0,'rgba(255,77,148,.7)');
+  tg.addColorStop(1,'rgba(255,77,148,0)');
+  ctx.fillStyle=tg;
+  ctx.beginPath(); ctx.ellipse(0,h*.6,w*.3,h*.5,0,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // Thruster flames
+  const flicker=Math.sin(frame*.35)*3*s;
+  ctx.fillStyle='#FFD700';
+  ctx.shadowColor='#FFD700'; ctx.shadowBlur=10*s;
+  ctx.beginPath();
+  ctx.moveTo(-8*s,h*.42); ctx.lineTo(0,h*.42+(22+flicker)*s); ctx.lineTo(8*s,h*.42);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#FF4D94';
+  ctx.beginPath();
+  ctx.moveTo(-5*s,h*.42); ctx.lineTo(0,h*.42+(14+flicker*.5)*s); ctx.lineTo(5*s,h*.42);
+  ctx.closePath(); ctx.fill();
+  ctx.shadowBlur=0;
+
+  // Main ship body — heart-shaped pink ship
+  const sg=ctx.createLinearGradient(-w/2,-h/2,w/2,h/2);
+  sg.addColorStop(0,'#FF85B3'); sg.addColorStop(.5,'#FF4D94'); sg.addColorStop(1,'#c0106a');
+  ctx.fillStyle=sg;
+  ctx.shadowColor='rgba(255,77,148,.6)'; ctx.shadowBlur=12*s;
+  // Hull
+  ctx.beginPath();
+  ctx.moveTo(0,-h*.5);
+  ctx.bezierCurveTo(w*.55,-h*.5,w*.5,0,0,h*.4);
+  ctx.bezierCurveTo(-w*.5,0,-w*.55,-h*.5,0,-h*.5);
+  ctx.closePath(); ctx.fill();
+  ctx.shadowBlur=0;
+
+  // Wing accents
+  ctx.fillStyle='rgba(255,180,210,.4)';
+  ctx.beginPath();
+  ctx.moveTo(-w*.35,-h*.05);
+  ctx.lineTo(-w*.75,h*.25);
+  ctx.lineTo(-w*.2,h*.2);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(w*.35,-h*.05);
+  ctx.lineTo(w*.75,h*.25);
+  ctx.lineTo(w*.2,h*.2);
+  ctx.closePath(); ctx.fill();
+
+  // Cockpit window — Hello Kitty face
+  ctx.fillStyle='rgba(255,255,255,.18)';
+  ctx.beginPath(); ctx.ellipse(0,-h*.18,w*.28,h*.22,0,0,Math.PI*2); ctx.fill();
+  // Kitty eyes on cockpit
+  ctx.fillStyle='#1a1a1a';
+  ctx.beginPath(); ctx.ellipse(-w*.09,-h*.22,w*.055,w*.07,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse( w*.09,-h*.22,w*.055,w*.07,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(-w*.07,-h*.25,w*.022,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc( w*.11,-h*.25,w*.022,0,Math.PI*2); ctx.fill();
+  // Bow on ship
+  ctx.font=`${w*.6}px serif`; ctx.textAlign='center';
+  ctx.fillText('🎀',0,-h*.44);
+
+  // Shield aura
+  if(shield>0){
+    ctx.save();
+    ctx.globalAlpha=0.35+Math.sin(frame*.1)*.2;
+    ctx.strokeStyle='#C77DFF'; ctx.lineWidth=4*s;
+    ctx.shadowColor='#C77DFF'; ctx.shadowBlur=16*s;
+    ctx.beginPath(); ctx.arc(0,-h*.06,w*.72,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+// ── Enemy ─────────────────────────────────────────────────
+function drawEnemy(e){
+  if(e.dead)return;
+  ctx.save();
+  ctx.translate(e.x,e.y);
+
+  const s=S(), sz=e.w;
+
+  ctx.shadowColor=e.col; ctx.shadowBlur=8*s;
+
+  if(e.isBoss){
+    drawBossShip(e,s);
+    ctx.restore(); return;
+  }
+
+  const t=e.type;
+  if(t==='cloud'){
+    // Enemy cloud ship
+    ctx.fillStyle=e.col;
+    ctx.beginPath();
+    ctx.arc(0,0,sz,0,Math.PI*2);
+    ctx.arc(sz*.6,-sz*.25,sz*.7,0,Math.PI*2);
+    ctx.arc(-sz*.6,-sz*.15,sz*.55,0,Math.PI*2);
+    ctx.arc(sz*1.1,sz*.1,sz*.45,0,Math.PI*2);
+    ctx.fill();
+    // angry eyes
+    ctx.fillStyle='#1a1a1a';
+    ctx.beginPath(); ctx.ellipse(-sz*.25,-sz*.05,sz*.15,sz*.2,-.3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse( sz*.25,-sz*.05,sz*.15,sz*.2, .3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.beginPath(); ctx.arc(-sz*.2,-sz*.1,sz*.06,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc( sz*.3,-sz*.1,sz*.06,0,Math.PI*2); ctx.fill();
+  } else if(t==='star'){
+    // Spinning star enemy
+    ctx.rotate(frame*.04);
+    ctx.fillStyle=e.col;
+    ctx.beginPath();
+    for(let i=0;i<5;i++){
+      const a=(i*4/5-.5)*Math.PI;
+      const ai=(i*4/5-.5+2/5)*Math.PI;
+      ctx.lineTo(Math.cos(a)*sz,Math.sin(a)*sz);
+      ctx.lineTo(Math.cos(ai)*sz*.45,Math.sin(ai)*sz*.45);
+    }
+    ctx.closePath(); ctx.fill();
+  } else if(t==='heart'){
+    // Heart enemy
+    ctx.fillStyle=e.col;
+    ctx.beginPath();
+    ctx.moveTo(0,sz*.3);
+    ctx.bezierCurveTo(sz*.6,-sz*.5,sz*1.1,sz*.1,0,sz*.8);
+    ctx.bezierCurveTo(-sz*1.1,sz*.1,-sz*.6,-sz*.5,0,sz*.3);
+    ctx.closePath(); ctx.fill();
+  } else {
+    // Diamond
+    ctx.fillStyle=e.col;
+    ctx.beginPath();
+    ctx.mo
